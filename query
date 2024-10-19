@@ -1,0 +1,75 @@
+
+CREATE OR REPLACE PROCEDURE cortex_search_procedure(
+    search_query STRING,               -- The query term to search for
+    filter_column STRING,              -- The column to apply the filter on
+    filter_value STRING,               -- The value to filter by
+    result_limit INT                   -- The limit of the results
+)
+RETURNS VARIANT
+LANGUAGE SQL
+EXECUTE AS CALLER
+AS
+$$
+    DECLARE
+        json_query STRING;
+    BEGIN
+        -- Construct the JSON payload without explicit casting
+        json_query := OBJECT_CONSTRUCT(
+              'query', search_query,
+              'columns', ARRAY_CONSTRUCT('CHUNK', 'RELATIVE_PATH', 'FILE_URL'),
+              'filter', OBJECT_CONSTRUCT('@eq', OBJECT_CONSTRUCT(filter_column, filter_value)),
+              'limit', result_limit
+        );
+
+        -- Call SEARCH_PREVIEW function
+        RETURN PARSE_JSON(
+            SNOWFLAKE.CORTEX.SEARCH_PREVIEW(
+                'CORTEX_LAB_DB.CORTEX_LAB_SCHEMA.PDF_CHUNK_SERVICE',
+                json_query
+            )
+        )['results'];
+    END;
+$$;
+
+
+
+CALL cortex_search_procedure(
+    'Explain Oncology', 
+    'RELATIVE_PATH', 
+    'Cardiology_Comprehensive_Overview.pdf', 
+    5
+);
+
+SHOW USERS;  --CORTEXSA
+
+DESCRIBE USER CORTEXSA;
+
+DESC USER CORTEXSA;
+SELECT SUBSTR((SELECT "value" FROM TABLE(RESULT_SCAN(LAST_QUERY_ID()))
+  WHERE "property" = 'RSA_PUBLIC_KEY_FP'), LEN('SHA256:') + 1);         -- FOqEUmCRvIp7ETzoE62706WaDVVNOpVfUDTZ55pc35g=    FOqEUmCRvIp7ETzoE62706WaDVVNOpVfUDTZ55pc35g=
+
+
+-- ALTER USER CORTEXSA
+-- SET RSA_PUBLIC_KEY='MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA
+-- vOrO1GgaopfXhrlSIcDxKsYboE5IJfX5e9jODwkExQtK42HL4AVs8775cXra0rRm
+-- bEyIwRkcSOjeFsWmPufT1co5F8aYJY0cD1Wj/X07QISG0f6U51e/x6WTctFuoLGJ
+-- +Q0MrsbXJPlQzvLg1ZzWoVjTtFjvQBVOfSNtZxRy/0jAoT/VPg+bQT7xFS5lAj9f
+-- gF/NYspGbs7CtitveGPlnrfjxTt/HIGixaxuq6/YCiVGyAGFx0/mXauOmyRh8DaZ
+-- QphvcGpk8Zo02Va+urufyUUovlXQaSyWfThx1bjqI7K08TCoa3Qt1scKomGfiBVU
+-- CdP0CtWrtKymWLhWAWoDWQIDAQAB';
+
+
+select SYSTEM$GET_PRIVATELINK_CONFIG();
+
+SHOW USERS LIKE 'CORTEXSA';
+
+
+ALTER USER CORTEXSA SET RSA_PUBLIC_KEY='MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAxx7qU1SU3truFycytl/c
+x6KhGCqw8STygKDSlf/MtQA6ZyQHZ+1AWr6xVlcGQQIXMXRR/vRw44k+VEulzwlr
+AWeDmeR2ekN53xNhSoT0OiV9kpfyV3uDxzqGUfFAHSxcFn0K05/cje+ekjMhMc2d
+E4VjcXH4Lmtl1/2Moz/dWc3QvETrAGpkJQyRp0ImcMtuP9Lv2O3XX1pJEGGDQCmJ
+Y6QHRSDKS4U+7HfEu5eYn6vaculNC/rl4a5Af06rV2UzZklce1yJX6ZsEF8Gb/am
+2INq3fxr1kzM9UQO+NzI0JyFCEpHKJTX7eaDkkIvojctSjewDwm0WzJytefDpE+u
+HQIDAQAB';
+
+

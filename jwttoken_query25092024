@@ -1,0 +1,22 @@
+--> private : openssl genrsa 2048 | openssl pkcs8 -topk8 -inform PEM -out rsa_key.p8 -nocrypt
+
+--> public : openssl rsa -in rsa_key.p8 -pubout -out rsa_key.pub
+
+-->  openssl rsa -in C:\Users\User\Documents\JWT_TOKEN\rsa_key.p8 -check
+
+-->  snowsql -a akb21464 -u CORTEXSEARCHTOKEN
+
+--> use role account admin;
+
+--> ALTER USER CORTEXSEARCHTOKEN SET RSA_PUBLIC_KEY='MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA3mYXkRLA9a5RiRuufFGA
+DSgwugWLckcf0/ZnBiz3cLgYwZ23sYZzMIkBljaUndJTIShIwBka9kslTxPbOFn3
+0jae8mgAF+32cNwA4WxiinkxA2Qy5by5g0UWMpw9VQQacNJMF8Qcm+Bky9b56iD8
+KmHe9Wlut5vLV2xo4sCY4U9PChlEp5s5FPsiSgpgx+9uq61yzty64A7gnBuE7XBj
+g/HXWPDqasya4RVVY6sGFW92e3IYzZB8RolDNEjimSXWt2OfolUy0TzcniE7BGQC
+Umb++7ZD8FFil6gcZr46gVfcB74NtXNzWfDYiHxXoPd75po8mk7ht5YRGdUIiY0v
+YwIDAQAB';
+
+--> GRANT ROLE ACCOUNTADMIN TO ROLE CORTEX_SEARCH_TOKEN;   ""THE SHOW TRUE IN has_rsa_public_key""
+
+--> snowsql -a akb21464 -u CORTEXSEARCHTOKEN --private-key-path C:/Users/User/Documents/JWT_TOKEN/rsa_key.p8 --generate-jwt
+
